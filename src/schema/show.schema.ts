@@ -10,57 +10,48 @@ export const showSchema = new Schema({
   language: String,
   genres: [String],
   status: String,
-  runtime: { type: Number, allowNull: true },
-  averageRuntime: { type: Number, allowNull: true },
-  premiered: { type: String, allowNull: true },
-  ended: { type: String, allowNull: true },
-  officialSite: { type: String, allowNull: true },
+  runtime: Number,
+  averageRuntime: Number,
+  premiered: String,
+  ended: String,
+  officialSite: String,
   schedule: {
     time: String,
     days: [String],
   },
   rating: {
-    average: { type: Number, allowNull: true },
+    average: Number,
   },
   weight: Number,
   network: {
-    type: {
-      id: Number,
-      name: String,
-      country: {
-        name: String,
-        code: String,
-        timezone: String,
-      },
-      officialSite: { type: String, allowNull: true },
-    },
-    allowNull: true,
-  },
-  webChannel: {
-    type: {
-      id: Number,
-      name: String,
-      country: {
-        name: String,
-        code: String,
-        timezone: { type: String, allowNull: true },
-        officialSite: { type: String, allowNull: true },
-      },
-    },
-    allowNull: true,
-  },
-  dvdCountry: {
-    type: {
+    id: Number,
+    name: String,
+    country: {
       name: String,
       code: String,
       timezone: String,
     },
-    allowNull: true,
+    officialSite: String,
+  },
+  webChannel: {
+    id: Number,
+    name: String,
+    country: {
+      name: String,
+      code: String,
+      timezone: String,
+      officialSite: String,
+    },
+  },
+  dvdCountry: {
+    name: String,
+    code: String,
+    timezone: String,
   },
   externals: {
-    tvrage: { type: Number, allowNull: true },
-    thetvdb: { type: Number, allowNull: true },
-    imdb: { type: String, allowNull: true },
+    tvrage: Number,
+    thetvdb: Number,
+    imdb: String,
   },
   image: {
     medium: String,
@@ -73,18 +64,12 @@ export const showSchema = new Schema({
       href: String,
     },
     previousepisode: {
-      type: {
-        href: String,
-        name: String,
-      },
-      allowNull: true,
+      href: String,
+      name: String,
     },
     nextepisode: {
-      type: {
-        href: String,
-        name: String,
-      },
-      allowNull: true,
+      href: String,
+      name: String,
     },
   },
 });
