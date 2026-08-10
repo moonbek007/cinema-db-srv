@@ -3,6 +3,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 
 import moviesRouter from "./routes/movies.js";
+import collectionsRouter from "./routes/collections.js";
+
 import { BaseEndpoints } from "./constants/constants.js";
 
 const app: Express = express();
@@ -13,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.use(BaseEndpoints.MOVIES, moviesRouter);
+
+app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Cinema DB Server!");

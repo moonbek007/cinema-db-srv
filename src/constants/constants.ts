@@ -1,10 +1,15 @@
 export enum BaseEndpoints {
   MOVIES = "/movies",
+  COLLECTIONS = "/collections",
 }
 
 export enum MoviesEndpoints {
   BASE = "/",
   BY_ID = "/:id",
+}
+
+export enum CollectionsEndpoints {
+  BASE = "/",
 }
 
 export enum MoviesQueryParams {

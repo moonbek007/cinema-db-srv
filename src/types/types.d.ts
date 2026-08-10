@@ -97,3 +97,5 @@ declare type MoviesByIdRequestQueryParams = {
 };
 
 declare type MoviesByIdResponseBody = Show | Err;
+
+declare type CollectionsResponseBody = { count: number; name: string }[] | Err;
