@@ -85,7 +85,10 @@ export const getMoviesById = async (
   try {
     const { id } = req.params;
 
-    const data = ShowModel.findOne({ id: parseInt(id) }) as unknown as Show;
+    const data = (await ShowModel.findOne({
+      id: parseInt(id),
+    })) as unknown as Show;
+
     return res.json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });
