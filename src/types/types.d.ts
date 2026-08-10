@@ -79,8 +79,15 @@ declare type MoviesRequestQuery = {
   Country?: string;
   Status?: string;
   Language?: string;
-  Page?: string;
-  Search?: string;
+};
+
+declare type MoviesQueryObject = {
+  "rating.average"?: { $gt: number };
+  genres?: { $in: string[] };
+  type?: { $in: string[] };
+  "network.country.name"?: { $in: string[] };
+  status?: { $in: string[] };
+  language?: { $in: string[] };
 };
 
 declare type MoviesResponseBody = Show[] | Err;
