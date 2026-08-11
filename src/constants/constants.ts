@@ -1,6 +1,7 @@
 export enum BaseEndpoints {
   MOVIES = "/movies",
   COLLECTIONS = "/collections",
+  GENRES = "/genres",
 }
 
 export enum MoviesEndpoints {
@@ -10,6 +11,11 @@ export enum MoviesEndpoints {
 
 export enum CollectionsEndpoints {
   BASE = "/",
+}
+
+export enum GenresEndpoints {
+  BASE = "/",
+  PREVIEW = "/preview",
 }
 
 export enum MoviesQueryParams {

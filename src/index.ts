@@ -6,6 +6,7 @@ import moviesRouter from "./routes/movies.js";
 import collectionsRouter from "./routes/collections.js";
 
 import { BaseEndpoints } from "./constants/constants.js";
+import genresRouter from "./routes/genres.js";
 
 const app: Express = express();
 
@@ -17,6 +18,8 @@ app.use(cors());
 app.use(BaseEndpoints.MOVIES, moviesRouter);
 
 app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
+
+app.use(BaseEndpoints.GENRES, genresRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Cinema DB Server!");
