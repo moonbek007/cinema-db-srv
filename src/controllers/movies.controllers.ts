@@ -94,3 +94,25 @@ export const getMoviesById = async (
     return res.status(500).json({ error: "Internal server error." });
   }
 };
+
+export const getMoviesByName = async (
+  req: Request<{}, unknown, unknown, MoviesByNameRequestQuery>,
+  res: Response<MoviesByNameResponseBody>,
+) => {
+  try {
+    const { name: searchName } = req.query;
+    const shows = await ShowModel.aggregate([
+      {
+        $match: {
+          name: {
+            $regex: searchName,
+            $options: "i",
+          },
+        },
+      },
+    ]);
+    return res.json(shows);
+  } catch (error) {
+    return res.status(500).json({ error: "No 'name' query param provided." });
+  }
+};

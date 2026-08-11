@@ -7,6 +7,7 @@ export enum BaseEndpoints {
 export enum MoviesEndpoints {
   BASE = "/",
   BY_ID = "/:id",
+  SEARCH = "/search",
 }
 
 export enum CollectionsEndpoints {

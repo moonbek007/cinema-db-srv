@@ -98,6 +98,12 @@ declare type MoviesByIdRequestQueryParams = {
 
 declare type MoviesByIdResponseBody = Show | Err;
 
+declare type MoviesByNameRequestQuery = {
+  name: string;
+};
+
+declare type MoviesByNameResponseBody = Show[] | Err;
+
 declare type CollectionsResponseBody = { count: number; name: string }[] | Err;
 
 declare type GenresPreviewResponseBody =
