@@ -1,32 +1,21 @@
 import mongoose from "mongoose";
 import { type Request, type Response } from "express";
 
-import { showSchema } from "../schema/show.schema.js";
+import { collectionSchema } from "../schema/collection.schema.js";
+import { DB_MODELS, DB_NAMES } from "../constants/constants.js";
 
-const ShowModel = mongoose.model("Show", showSchema);
+const CollectionModel = mongoose.model(
+  DB_MODELS.COLLECTION,
+  collectionSchema,
+  DB_NAMES.COLLECTIONS_INFO,
+);
 
 export const getCollections = async (
   req: Request,
   res: Response<CollectionsResponseBody>,
 ) => {
   try {
-    const genres = await ShowModel.aggregate([
-      { $unwind: "$genres" },
-      {
-        $group: {
-          _id: "$genres",
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1 } },
-      {
-        $project: {
-          _id: 0,
-          name: "$_id",
-          count: 1,
-        },
-      },
-    ]);
+    const genres: CollectionsResponseBody = await CollectionModel.find();
     return res.json(genres);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });

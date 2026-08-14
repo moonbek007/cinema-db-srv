@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 import { type Request, type Response } from "express";
 
 import { showSchema } from "../schema/show.schema.js";
+import { DB_MODELS, DB_NAMES } from "../constants/constants.js";
 
-const TrendingShowModel = mongoose.model("Show", showSchema, "trendingShows");
+const TrendingShowModel = mongoose.model(
+  DB_MODELS.SHOW,
+  showSchema,
+  DB_NAMES.TRENDING_SHOWS,
+);
 
 export const getPreviewOfGenres = async (
   req: Request,

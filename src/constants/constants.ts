@@ -36,3 +36,13 @@ export enum CountryQueryValues {
   UK = "UK",
   UK_FULL = "United Kingdom",
 }
+
+export enum DB_MODELS {
+  SHOW = "Show",
+  COLLECTION = "Collection",
+}
+
+export enum DB_NAMES {
+  TRENDING_SHOWS = "trendingShows",
+  COLLECTIONS_INFO = "collectionsInfo",
+}
