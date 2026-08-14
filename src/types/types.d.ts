@@ -79,6 +79,7 @@ declare type MoviesRequestQuery = {
   Country?: string;
   Status?: string;
   Language?: string;
+  Page?: string;
 };
 
 declare type MoviesQueryObject = {
@@ -90,7 +91,12 @@ declare type MoviesQueryObject = {
   language?: { $in: string[] };
 };
 
-declare type MoviesResponseBody = Show[] | Err;
+declare type MoviesResponseBody = { count: number; shows: Show[] } | Err;
+
+declare type MoviesAggregatedType = {
+  totalCount: { count: number }[];
+  shows: Show[];
+}[];
 
 declare type MoviesByIdRequestQueryParams = {
   id: string;

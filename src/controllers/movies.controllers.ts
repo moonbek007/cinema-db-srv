@@ -4,14 +4,15 @@ import mongoose from "mongoose";
 import { showSchema } from "../schema/show.schema.js";
 import {
   CountryQueryValues,
+  DB_MODELS,
   MoviesQueryParams,
 } from "../constants/constants.js";
 
-const ShowModel = mongoose.model("Show", showSchema);
+const ShowModel = mongoose.model(DB_MODELS.SHOW, showSchema);
 
 export const getMovies = async (
   req: Request<{}, unknown, unknown, MoviesRequestQuery>,
-  res: Response,
+  res: Response<MoviesResponseBody>,
 ) => {
   try {
     const queries = Object.entries(req.query) as unknown as [
@@ -19,18 +20,13 @@ export const getMovies = async (
       string,
     ];
 
-    let shows: Show[] = [];
-
-    if (!queries.length) {
-      shows = await ShowModel.find();
-      return res.json(shows);
-    }
-
     const queryObject: MoviesQueryObject = {};
 
     queries.forEach(([queryName, queryValue]) => {
       const queryFilters = queryValue.split("&");
       switch (queryName) {
+        case MoviesQueryParams.SEARCH:
+          break;
         case MoviesQueryParams.RATING:
           queryObject["rating.average"] = {
             $gt: parseInt(queryValue),
@@ -71,9 +67,30 @@ export const getMovies = async (
           break;
       }
     });
-    shows = await ShowModel.find(queryObject);
-    console.log(`Number of shows found:`, shows.length);
-    return res.json(shows);
+
+    const pageNumber = req.query.Page ? parseInt(req.query.Page) : 1;
+
+    const [showsAfterAggregate]: MoviesAggregatedType =
+      await ShowModel.aggregate([
+        // Apply your exact filter object using $match
+        { $match: queryObject },
+        // Split into Count and Pagination Data
+        {
+          $facet: {
+            totalCount: [{ $count: "count" }],
+            shows: [
+              { $skip: (pageNumber - 1) * 20 }, // Changing pages
+              { $limit: 20 }, // Number of elements per page
+            ],
+          },
+        },
+      ]);
+
+    console.log(`Number of shows found:`, showsAfterAggregate.shows.length);
+    return res.json({
+      count: showsAfterAggregate.totalCount[0].count,
+      shows: showsAfterAggregate.shows,
+    });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });
   }
