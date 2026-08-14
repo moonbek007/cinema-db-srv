@@ -80,9 +80,11 @@ declare type MoviesRequestQuery = {
   Status?: string;
   Language?: string;
   Page?: string;
+  Search?: string;
 };
 
 declare type MoviesQueryObject = {
+  name?: { $regex: string; $options: string };
   "rating.average"?: { $gt: number; $lt: number };
   genres?: { $in: string[] };
   type?: { $in: string[] };

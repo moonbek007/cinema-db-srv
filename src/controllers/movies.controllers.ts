@@ -22,6 +22,9 @@ export const getMovies = async (
 
     const queryObject: MoviesQueryObject = {};
 
+    const searchValue = req.query.Search;
+    if (searchValue) queryObject.name = { $regex: searchValue, $options: "i" };
+
     queries.forEach(([queryName, queryValue]) => {
       const queryFilters = queryValue.split("&");
       switch (queryName) {
