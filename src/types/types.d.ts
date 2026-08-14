@@ -82,7 +82,7 @@ declare type MoviesRequestQuery = {
 };
 
 declare type MoviesQueryObject = {
-  "rating.average"?: { $gt: number };
+  "rating.average"?: { $gt: number; $lt: number };
   genres?: { $in: string[] };
   type?: { $in: string[] };
   "network.country.name"?: { $in: string[] };

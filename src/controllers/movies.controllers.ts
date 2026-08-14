@@ -34,6 +34,7 @@ export const getMovies = async (
         case MoviesQueryParams.RATING:
           queryObject["rating.average"] = {
             $gt: parseInt(queryValue),
+            $lt: parseInt(queryValue) + 1,
           };
           break;
         case MoviesQueryParams.GENRE:
