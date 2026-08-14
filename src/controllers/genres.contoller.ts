@@ -2,51 +2,41 @@ import mongoose from "mongoose";
 import { type Request, type Response } from "express";
 
 import { showSchema } from "../schema/show.schema.js";
-import { getRandomShows } from "../lib/utils.js";
 
-const ShowModel = mongoose.model("Show", showSchema);
+const TrendingShowModel = mongoose.model("Show", showSchema, "trendingShows");
 
 export const getPreviewOfGenres = async (
   req: Request,
   res: Response<GenresPreviewResponseBody>,
 ) => {
   try {
-    const genres: GenresPreviewResponseBody = await ShowModel.aggregate([
-      {
-        $unwind: "$genres",
-      },
-      {
-        $group: {
-          _id: "$genres",
-          count: { $sum: 1 },
-          shows: { $push: "$$ROOT" },
+    const genres: GenresPreviewResponseBody = await TrendingShowModel.aggregate(
+      [
+        {
+          $unwind: "$genres",
         },
-      },
-      {
-        $sort: {
-          count: -1,
+        {
+          $group: {
+            _id: "$genres",
+            count: { $sum: 1 },
+            shows: { $push: "$$ROOT" },
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          name: "$_id",
-          count: 1,
-          shows: 1,
+        {
+          $sort: {
+            count: -1,
+          },
         },
-      },
-    ]);
-
-    genres.forEach((genre) => {
-      if (genre.count < 100) {
-        if (genre.count < 20) return;
-        genre.shows = genre.shows.slice(genre.shows.length - 20);
-        return;
-      }
-
-      const shows = getRandomShows(genre.shows, 20);
-      genre.shows = shows;
-    });
+        {
+          $project: {
+            _id: 0,
+            name: "$_id",
+            count: 1,
+            shows: 1,
+          },
+        },
+      ],
+    );
 
     return res.json(genres);
   } catch (error) {
