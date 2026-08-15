@@ -1,7 +1,7 @@
 export enum BaseEndpoints {
-  MOVIES = "/movies",
-  COLLECTIONS = "/collections",
-  GENRES = "/genres",
+  MOVIES = "/api/movies",
+  COLLECTIONS = "/api/collections",
+  GENRES = "/api/genres",
 }
 
 export enum MoviesEndpoints {

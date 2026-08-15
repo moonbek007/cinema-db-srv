@@ -1,0 +1,66 @@
+import express, {
+  type Express,
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import serverless from "serverless-http";
+
+import moviesRouter from "../../src/routes/movies.js";
+import collectionsRouter from "../../src/routes/collections.js";
+import genresRouter from "../../src/routes/genres.js";
+
+import { BaseEndpoints } from "../../src/constants/constants.js";
+
+const app: Express = express();
+
+let isConnected = false;
+const dbURI = `mongodb://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@ac-riz9jhg-shard-00-00.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-01.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-02.2daclnk.mongodb.net:27017/${process.env.MONGO_DB_DB_NAME}?ssl=true&replicaSet=atlas-nx5y6d-shard-0&authSource=admin&appName=Cluster0`;
+
+async function connectToDatabase() {
+  if (isConnected) {
+    return;
+  }
+
+  if (!dbURI) {
+    throw new Error("MONGODB_URI environment variable is missing");
+  }
+
+  try {
+    await mongoose.connect(dbURI);
+    isConnected = true;
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw error;
+  }
+}
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
+
+app.use(cors());
+
+app.use(BaseEndpoints.MOVIES, moviesRouter);
+
+app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
+
+app.use(BaseEndpoints.GENRES, genresRouter);
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Cinema DB Server!");
+});
+
+app.use((req: Request, res: Response<{ message: string }>) => {
+  res.status(404).json({ message: "No matching routes found!" });
+});
+
+export const handler = serverless(app);
