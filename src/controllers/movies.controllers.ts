@@ -1,10 +1,15 @@
 import { type Request, type Response } from "express";
 import mongoose from "mongoose";
 
+import { redisClient } from "../services/redisClient.service.js";
 import { showSchema } from "../schema/show.schema.js";
+
+import { generateMoviesCacheKey } from "../lib/utils.js";
 import {
+  BaseEndpoints,
   CountryQueryValues,
   DB_MODELS,
+  moviesPerPage,
   MoviesQueryParams,
 } from "../constants/constants.js";
 
@@ -21,6 +26,14 @@ export const getMovies = async (
     ];
 
     const queryObject: MoviesQueryObject = {};
+
+    const pageNumber = req.query.Page ? parseInt(req.query.Page) : 1;
+
+    if (pageNumber < 1) {
+      return res
+        .status(400)
+        .json({ message: "Page number can not be less than 1", payload: {} });
+    }
 
     const searchValue = req.query.Search;
     if (searchValue) queryObject.name = { $regex: searchValue, $options: "i" };
@@ -71,7 +84,11 @@ export const getMovies = async (
       }
     });
 
-    const pageNumber = req.query.Page ? parseInt(req.query.Page) : 1;
+    const cacheKey = generateMoviesCacheKey(req, BaseEndpoints.MOVIES);
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
 
     const [showsAfterAggregate]: MoviesAggregatedType =
       await ShowModel.aggregate([
@@ -82,17 +99,39 @@ export const getMovies = async (
           $facet: {
             totalCount: [{ $count: "count" }],
             shows: [
-              { $skip: (pageNumber - 1) * 20 }, // Changing pages
+              { $skip: (pageNumber - 1) * moviesPerPage }, // Changing pages
               { $limit: 20 }, // Number of elements per page
             ],
           },
         },
       ]);
 
-    console.log(`Number of shows found:`, showsAfterAggregate.shows.length);
+    const { totalCount, shows } = showsAfterAggregate;
+    const showsCount = totalCount[0].count;
+
+    const totalNumberOfPages = Math.floor(showsCount / moviesPerPage) + 1;
+
+    if (pageNumber > totalNumberOfPages) {
+      return res.status(400).json({
+        message: "Page out of bounds",
+        payload: { totalPages: totalNumberOfPages },
+      });
+    }
+
+    console.log(`Number of shows found:`, showsCount);
+
+    await redisClient.setEx(
+      cacheKey,
+      1800,
+      JSON.stringify({
+        count: showsCount,
+        shows,
+      }),
+    );
+
     return res.json({
-      count: showsAfterAggregate.totalCount[0].count,
-      shows: showsAfterAggregate.shows,
+      count: showsCount,
+      shows,
     });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });
