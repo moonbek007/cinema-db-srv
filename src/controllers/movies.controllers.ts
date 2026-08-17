@@ -9,6 +9,7 @@ import {
   BaseEndpoints,
   CountryQueryValues,
   DB_MODELS,
+  MoviesEndpoints,
   moviesPerPage,
   MoviesQueryParams,
 } from "../constants/constants.js";
@@ -161,7 +162,14 @@ export const getMoviesByName = async (
 ) => {
   try {
     const { name: searchName } = req.query;
-    const shows = await ShowModel.aggregate([
+
+    const cacheKey = generateMoviesCacheKey(req, MoviesEndpoints.SEARCH);
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+
+    const [showsAfterAggregation] = await ShowModel.aggregate([
       {
         $match: {
           name: {
@@ -170,8 +178,20 @@ export const getMoviesByName = async (
           },
         },
       },
+      {
+        $facet: {
+          shows: [{ $limit: 20 }],
+        },
+      },
     ]);
-    return res.json(shows);
+
+    await redisClient.setEx(
+      cacheKey,
+      120,
+      JSON.stringify(showsAfterAggregation.shows),
+    );
+
+    return res.json(showsAfterAggregation.shows);
   } catch (error) {
     return res.status(500).json({ error: "No 'name' query param provided." });
   }
