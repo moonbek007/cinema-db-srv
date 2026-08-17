@@ -72,6 +72,11 @@ declare type Show = {
 
 declare type Err = { error: string };
 
+declare type ErrWithPayload = {
+  message: string;
+  payload: Record<string, string | number>;
+};
+
 declare type MoviesRequestQuery = {
   Genre?: string;
   Type?: string;
@@ -93,7 +98,10 @@ declare type MoviesQueryObject = {
   language?: { $in: string[] };
 };
 
-declare type MoviesResponseBody = { count: number; shows: Show[] } | Err;
+declare type MoviesResponseBody =
+  | { count: number; shows: Show[] }
+  | ErrWithPayload
+  | Err;
 
 declare type MoviesAggregatedType = {
   totalCount: { count: number }[];

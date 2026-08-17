@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import { type Request, type Response } from "express";
 
 import { showSchema } from "../schema/show.schema.js";
-import { DB_MODELS, DB_NAMES } from "../constants/constants.js";
+import { redisClient } from "../services/redisClient.service.js";
+
+import { BaseEndpoints, DB_MODELS, DB_NAMES } from "../constants/constants.js";
 
 const TrendingShowModel = mongoose.model(
   DB_MODELS.SHOW,
@@ -15,6 +17,11 @@ export const getPreviewOfGenres = async (
   res: Response<GenresPreviewResponseBody>,
 ) => {
   try {
+    const cachedData = await redisClient.get(BaseEndpoints.GENRES);
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+
     const genres: GenresPreviewResponseBody = await TrendingShowModel.aggregate(
       [
         {
@@ -42,6 +49,8 @@ export const getPreviewOfGenres = async (
         },
       ],
     );
+
+    await redisClient.setEx(BaseEndpoints.GENRES, 3600, JSON.stringify(genres));
 
     return res.json(genres);
   } catch (error) {
