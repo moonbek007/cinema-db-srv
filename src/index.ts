@@ -4,14 +4,13 @@ import mongoose from "mongoose";
 
 import moviesRouter from "./routes/movies.js";
 import collectionsRouter from "./routes/collections.js";
-
-import { BaseEndpoints } from "./constants/constants.js";
 import genresRouter from "./routes/genres.js";
 
-const app: Express = express();
+import { redisClient } from "./services/redisClient.service.js";
 
-const dbURI = `mongodb://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@ac-riz9jhg-shard-00-00.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-01.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-02.2daclnk.mongodb.net:27017/${process.env.MONGO_DB_DB_NAME}?ssl=true&replicaSet=atlas-nx5y6d-shard-0&authSource=admin&appName=Cluster0`;
-const PORT = process.env.PORT || 3000;
+import { BaseEndpoints, mongoDbURI, PORT } from "./constants/constants.js";
+
+const app: Express = express();
 
 app.use(cors());
 
@@ -29,12 +28,20 @@ app.use((req: Request, res: Response<{ message: string }>) => {
   res.status(404).json({ message: "No matching routes found!" });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server started on port ${PORT}.`);
+
+  await redisClient.connect();
   mongoose
-    .connect(dbURI)
+    .connect(mongoDbURI)
     .then(() => {
       console.log("Connected to Database");
     })
     .catch((err) => console.log(err));
+});
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down server...");
+  await redisClient.quit();
+  process.exit(0);
 });
