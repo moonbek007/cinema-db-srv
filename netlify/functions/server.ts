@@ -12,24 +12,25 @@ import moviesRouter from "../../src/routes/movies.js";
 import collectionsRouter from "../../src/routes/collections.js";
 import genresRouter from "../../src/routes/genres.js";
 
-import { BaseEndpoints } from "../../src/constants/constants.js";
+import { redisClient } from "../../src/services/redisClient.service.js";
+import { BaseEndpoints, mongoDbURI } from "../../src/constants/constants.js";
 
 const app: Express = express();
 
 let isConnected = false;
-const dbURI = `mongodb://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@ac-riz9jhg-shard-00-00.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-01.2daclnk.mongodb.net:27017,ac-riz9jhg-shard-00-02.2daclnk.mongodb.net:27017/${process.env.MONGO_DB_DB_NAME}?ssl=true&replicaSet=atlas-nx5y6d-shard-0&authSource=admin&appName=Cluster0`;
+let redisConnected = false;
 
 async function connectToDatabase() {
   if (isConnected) {
     return;
   }
 
-  if (!dbURI) {
+  if (!mongoDbURI) {
     throw new Error("MONGODB_URI environment variable is missing");
   }
 
   try {
-    await mongoose.connect(dbURI);
+    await mongoose.connect(mongoDbURI);
     isConnected = true;
     console.log("Connected to MongoDB");
   } catch (error) {
@@ -38,11 +39,27 @@ async function connectToDatabase() {
   }
 }
 
+async function connectToRedis() {
+  if (redisConnected) {
+    return;
+  }
+
+  try {
+    await redisClient.connect();
+    redisConnected = true;
+  } catch (error) {
+    console.error("Redis connection error:", error);
+    throw error;
+  }
+}
+
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   try {
     await connectToDatabase();
+    await connectToRedis();
     next();
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Database connection failed" });
   }
 });
@@ -56,7 +73,9 @@ app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
 app.use(BaseEndpoints.GENRES, genresRouter);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Cinema DB Server!");
+  res.send(
+    `<div><h1 style="text-align:center"><a style="color:black" href="https://moonbek007-cinema-db.netlify.app/">Cinema DB </a>Server</h1></div>`,
+  );
 });
 
 app.use((req: Request, res: Response<{ message: string }>) => {
