@@ -88,7 +88,7 @@ export const getMovies = async (
     const cacheKey = generateMoviesCacheKey(req, BaseEndpoints.MOVIES);
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
-      return res.json(JSON.parse(cachedData));
+      return res.status(200).json(JSON.parse(cachedData));
     }
 
     const [showsAfterAggregate]: MoviesAggregatedType =
@@ -130,7 +130,7 @@ export const getMovies = async (
       }),
     );
 
-    return res.json({
+    return res.status(200).json({
       count: showsCount,
       shows,
     });
@@ -150,7 +150,7 @@ export const getMoviesById = async (
       id: parseInt(id),
     })) as unknown as Show;
 
-    return res.json(data);
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });
   }
@@ -166,7 +166,7 @@ export const getMoviesByName = async (
     const cacheKey = generateMoviesCacheKey(req, MoviesEndpoints.SEARCH);
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
-      return res.json(JSON.parse(cachedData));
+      return res.status(200).json(JSON.parse(cachedData));
     }
 
     const [showsAfterAggregation] = await ShowModel.aggregate([
@@ -191,7 +191,7 @@ export const getMoviesByName = async (
       JSON.stringify(showsAfterAggregation.shows),
     );
 
-    return res.json(showsAfterAggregation.shows);
+    return res.status(200).json(showsAfterAggregation.shows);
   } catch (error) {
     return res.status(500).json({ error: "No 'name' query param provided." });
   }

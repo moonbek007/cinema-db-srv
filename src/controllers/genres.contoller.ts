@@ -19,7 +19,7 @@ export const getPreviewOfGenres = async (
   try {
     const cachedData = await redisClient.get(BaseEndpoints.GENRES);
     if (cachedData) {
-      return res.json(JSON.parse(cachedData));
+      return res.status(200).json(JSON.parse(cachedData));
     }
 
     const genres: GenresPreviewResponseBody = await TrendingShowModel.aggregate(
@@ -52,7 +52,7 @@ export const getPreviewOfGenres = async (
 
     await redisClient.setEx(BaseEndpoints.GENRES, 3600, JSON.stringify(genres));
 
-    return res.json(genres);
+    return res.status(200).json(genres);
   } catch (error) {
     return res.status(500).json({ error: "Internal server error." });
   }
