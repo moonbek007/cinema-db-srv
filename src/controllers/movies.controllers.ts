@@ -109,17 +109,21 @@ export const getMovies = async (
 
     const { totalCount, shows } = showsAfterAggregate;
 
-    if (!shows.length) {
+    if (!shows.length && totalCount.length === 0) {
       await redisClient.setEx(
         cacheKey,
         180,
         JSON.stringify({
           count: 0,
           shows,
+          totalPages: 1,
+          page: pageNumber,
         }),
       );
 
-      return res.status(200).json({ count: 0, shows });
+      return res
+        .status(200)
+        .json({ count: 0, totalPages: 1, page: pageNumber, shows });
     }
 
     const showsCount = totalCount[0].count;
@@ -140,12 +144,16 @@ export const getMovies = async (
       180,
       JSON.stringify({
         count: showsCount,
+        totalPages: totalNumberOfPages,
+        page: pageNumber,
         shows,
       }),
     );
 
     return res.status(200).json({
       count: showsCount,
+      totalPages: totalNumberOfPages,
+      page: pageNumber,
       shows,
     });
   } catch (error) {

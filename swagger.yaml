@@ -133,6 +133,12 @@ paths:
                   count:
                     type: integer
                     example: 1
+                  totalPages:
+                    type: integer
+                    example: 1
+                  page:
+                    type: integer
+                    example: 1
                   shows:
                     type: array
                     items:
