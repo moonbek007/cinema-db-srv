@@ -5,7 +5,7 @@ info:
   version: 1.0.0
   description: Standalone API documentation for Express Typescript server app.
 servers:
-  - url: /
+  - url: /api
     description: Netlify Serverless Host
 tags:
   - name: Movies

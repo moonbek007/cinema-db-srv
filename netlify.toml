@@ -3,14 +3,20 @@
   functions = "dist"
   publish = "dist"
 
-
 [functions]
   directory = "netlify/functions"  
   external_node_modules = ["express"]
   node_bundler = "esbuild"
+  included_files = ["swagger.yaml","swagger.html"]
 
 [[redirects]]
   force = true
   from = "/api/*"
   status = 200
   to = "/.netlify/functions/server/:splat"
+
+[[redirects]]
+  force = true
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
