@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "netlify dev",
-    "build": "tsc && cp swagger.yaml dist/ && cp swagger.html dist/",
+    "build": "tsc && cp swagger.yaml dist/ && cp index.html dist/",
     "type-check": "tsc --noEmit"
   },
   "keywords": [],
