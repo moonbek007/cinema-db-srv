@@ -99,7 +99,7 @@ declare type MoviesQueryObject = {
 };
 
 declare type MoviesResponseBody =
-  | { count: number; shows: Show[] }
+  | { count: number; totalPages: number; page: number; shows: Show[] }
   | ErrWithPayload
   | Err;
 
