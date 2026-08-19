@@ -1,6 +1,9 @@
+import path from "path";
 import express, { type Express, type Request, type Response } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 import moviesRouter from "./routes/movies.js";
 import collectionsRouter from "./routes/collections.js";
@@ -10,19 +13,22 @@ import { redisClient } from "./services/redisClient.service.js";
 
 import { BaseEndpoints, mongoDbURI, PORT } from "./constants/constants.js";
 
+const swaggerDocument = YAML.load(
+  path.join(import.meta.dirname, "../swagger.yaml"),
+);
+
 const app: Express = express();
 
 app.use(cors());
+
+app.use("/", swaggerUi.serveFiles(swaggerDocument));
+app.get("/", swaggerUi.setup(swaggerDocument));
 
 app.use(BaseEndpoints.MOVIES, moviesRouter);
 
 app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
 
 app.use(BaseEndpoints.GENRES, genresRouter);
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Cinema DB Server!");
-});
 
 app.use((req: Request, res: Response<{ message: string }>) => {
   res.status(404).json({ message: "No matching routes found!" });

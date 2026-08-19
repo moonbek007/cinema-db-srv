@@ -1,0 +1,485 @@
+# swagger.yaml
+openapi: 3.0.0
+info:
+  title: Cinema DB API
+  version: 1.0.0
+  description: Standalone API documentation for Express Typescript server app.
+servers:
+  - url: /
+    description: Netlify Serverless Host
+tags:
+  - name: Movies
+    description: Endpoints for retrieving movie data.
+  - name: Collections
+    description: Endpoints for retrieving collection data.
+  - name: Genres
+    description: Endpoints for retrieving genre data.
+paths:
+  /movies:
+    get:
+      tags:
+        - Movies
+      summary: Retrieve a list of movies
+      description: Returns and object that contains the count and an array of movie objects.
+      parameters:
+        - name: Page
+          in: query
+          required: false
+          description: |
+            The page number of filtered results. Defaults to 1 if omitted.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: Search
+          in: query
+          required: false
+          description: |
+            A search term to filter shows.
+            Omit the parameter to search all shows.
+
+            *Example*: Game of Thrones, Breaking Bad
+          schema:
+            type: string
+
+        - name: Genre
+          in: query
+          required: false
+          description: |
+            One or more genres separated by "&".
+            Omit the parameter to include all genres.
+
+            *Available values:* Adventure, Crime, Action, Thriller, Drama, Science-Fiction, Fantasy, Comedy, Horror, Romance, Mystery, Anime, History, Family, War, Music, Sports
+
+            *Example*: Drama, Horror, Adventure&Crime&Action
+          schema:
+            type: string
+
+        - name: Type
+          in: query
+          required: false
+          description: |
+            One or more types separated by "&".
+            Omit the parameter to include all types.
+
+            *Available values:* Scripted, Animation, Talk Show, Reality, Documentary
+
+            *Example*: Scripted, Documentary, Scripted&Animation
+          schema:
+            type: string
+
+        - name: Rating
+          in: query
+          required: false
+          description: >
+            Minimum rating and maximim rating below minimum rating + 1. Omit the parameter to include all ratings.
+          schema:
+            type: string
+            enum:
+              - "+5.0"
+              - "+6.0"
+              - "+7.0"
+              - "+8.0"
+              - "+9.0"
+
+        - name: Country
+          in: query
+          required: false
+          description: |
+            One or more countries separated by "&".
+            Omit the parameter to include all countries.
+
+            *Available values:* USA, Canada, Japan, UK, France, Germany, China, Australia, Netherlands, Spain
+
+            *Example*: Japan, Netherlands, USA&Canada&UK
+          schema:
+            type: string
+
+        - name: Status
+          in: query
+          required: false
+          description: |
+            One or more statuses separated by "&".
+            Omit the parameter to include all statuses.
+
+            *Available values:* Running, Ended, To be determined
+
+            *Example*: Running, Ended, Running&Ended
+          schema:
+            type: string
+
+        - name: Language
+          in: query
+          required: false
+          description: |
+            One or more languages separated by "&".
+            Omit the parameter to include all languages.
+
+            *Available values:* English, French, German, Dutch, Japanese, Korean, Spanish
+
+            *Example*: English, German, Japanese&French
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 1
+                  shows:
+                    type: array
+                    items:
+                      $ref: "#/$defs/Show"
+  /movies/{id}:
+    get:
+      tags:
+        - Movies
+      summary: Retrieve a single movie by ID
+      description: Returns details of a single movie object.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            default: 82
+          example: 82
+
+      responses:
+        200:
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/$defs/Show"
+  /movies/search:
+    get:
+      tags:
+        - Movies
+      summary: Retrieve a list of maximum 20 movies that match the search term
+      description: Returns an array of movie objects.
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: |
+            A search term to filter shows.
+            *Example*: Game of Thrones, Breaking Bad
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/$defs/Show"
+  /collections:
+    get:
+      tags:
+        - Collections
+      summary: Retrieve a list of collections metadata
+      description: Returns an array of collection metadata objects.
+      responses:
+        200:
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/$defs/Collection"
+  /genres/preview:
+    get:
+      tags:
+        - Genres
+      summary: Retrieve a list of object on main genres
+      description: Returns an array of object with a preview of each genre containing the count and array of shows of main genres.
+      responses:
+        200:
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/$defs/GenrePreview"
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+$defs:
+  Collection:
+    type: object
+    properties:
+      _id:
+        type: string
+      count:
+        type: integer
+      name:
+        type: string
+      __v:
+        type: integer
+    example:
+      _id: "6a7f08d040c92ef50f2b5261"
+      count: 1750
+      name: "Drama"
+      __v: 0
+
+  GenrePreview:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 1
+      shows:
+        type: array
+        items:
+          $ref: "#/$defs/Show"
+
+  Genre:
+    type: string
+
+  Show:
+    type: object
+    properties:
+      _id:
+        type: string
+      __v:
+        type: integer
+
+      id:
+        type: integer
+
+      url:
+        type: string
+
+      name:
+        type: string
+
+      type:
+        type: string
+
+      language:
+        type: string
+
+      genres:
+        type: array
+        items:
+          $ref: "#/$defs/Genre"
+
+      status:
+        type: string
+
+      runtime:
+        type: integer
+        nullable: true
+
+      averageRuntime:
+        type: integer
+        nullable: true
+
+      premiered:
+        type: string
+        nullable: true
+
+      ended:
+        type: string
+        nullable: true
+
+      officialSite:
+        type: string
+        nullable: true
+
+      schedule:
+        type: object
+        properties:
+          time:
+            type: string
+          days:
+            type: array
+            items:
+              type: string
+
+      rating:
+        type: object
+        properties:
+          average:
+            type: number
+            nullable: true
+
+      weight:
+        type: number
+
+      network:
+        type: object
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          country:
+            type: object
+            properties:
+              name:
+                type: string
+              code:
+                type: string
+              timezone:
+                type: string
+          officialSite:
+            type: string
+            nullable: true
+        nullable: true
+
+      webChannel:
+        type: object
+        nullable: true
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          country:
+            type: object
+            nullable: true
+            properties:
+              name:
+                type: string
+              code:
+                type: string
+              timezone:
+                type: string
+          officialSite:
+            type: string
+            nullable: true
+
+      dvdCountry:
+        type: object
+        nullable: true
+        properties:
+          name:
+            type: string
+          code:
+            type: string
+          timezone:
+            type: string
+
+      externals:
+        type: object
+        properties:
+          tvrage:
+            type: integer
+            nullable: true
+          thetvdb:
+            type: integer
+            nullable: true
+          imdb:
+            type: string
+            nullable: true
+
+      image:
+        type: object
+        properties:
+          medium:
+            type: string
+          original:
+            type: string
+        nullable: true
+
+      summary:
+        type: string
+
+      updated:
+        type: integer
+
+      _links:
+        type: object
+        properties:
+          self:
+            type: object
+            properties:
+              href:
+                type: string
+
+          previousepisode:
+            type: object
+            properties:
+              href:
+                type: string
+              name:
+                type: string
+            nullable: true
+
+          nextepisode:
+            type: object
+            properties:
+              href:
+                type: string
+              name:
+                type: string
+            nullable: true
+    example:
+      id: 169
+      url: "https://www.tvmaze.com/shows/169/breaking-bad"
+      name: "Breaking Bad"
+      type: "Scripted"
+      language: "English"
+      genres:
+        - "Drama"
+        - "Crime"
+        - "Thriller"
+      status: "Ended"
+      runtime: 60
+      averageRuntime: 60
+      premiered: "2008-01-20"
+      ended: "2019-10-11"
+      officialSite: "http://www.amc.com/shows/breaking-bad"
+      schedule:
+        time: "22:00"
+        days:
+          - "Sunday"
+
+      rating:
+        average: 9.2
+      weight: 99
+      network:
+        country:
+          name: "United States"
+          code: "US"
+          timezone: "America/New_York"
+        id: 20
+        name: "AMC"
+        officialSite: null
+
+      webChannel: null
+
+      dvdCountry: null
+
+      externals:
+        tvrage: 18164
+        thetvdb: 81189
+        imdb: "tt0903747"
+
+      image:
+        medium: "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg"
+        original: "https://static.tvmaze.com/uploads/images/original_untouched/501/1253519.jpg"
+
+      summary: "<p><b>Breaking Bad</b> follows protagonist Walter White, a chemistry teacher who lives in New Mexico with his wife and teenage son who has cerebral palsy. White is diagnosed with Stage III cancer and given a prognosis of two years left to live. With a new sense of fearlessness based on his medical prognosis, and a desire to secure his family's financial security, White chooses to enter a dangerous world of drugs and crime and ascends to power in this world. The series explores how a fatal diagnosis such as a fatal diagnosis such as this releases a typical man from the daily concerns and constraints of normal society and follows his transformation from mild family man to a kingpin of the drug trade.</p>"
+      updated: 1769198028
+      _links:
+        self:
+          href: "https://api.tvmaze.com/shows/169"
+        previousepisode:
+          href: "https://api.tvmaze.com/episodes/2007806"
+          name: "El Camino: A Breaking Bad Movie"
