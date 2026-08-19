@@ -7,7 +7,7 @@
   directory = "netlify/functions"  
   external_node_modules = ["express"]
   node_bundler = "esbuild"
-  included_files = ["swagger.yaml","swagger.html"]
+  included_files = ["swagger.yaml","index.html"]
 
 [[redirects]]
   force = true

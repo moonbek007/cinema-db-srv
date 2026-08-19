@@ -79,7 +79,7 @@ const swaggerYaml = fs.readFileSync(
   "utf8",
 );
 const swaggerHtml = fs.readFileSync(
-  path.join(process.cwd(), "swagger.html"),
+  path.join(process.cwd(), "index.html"),
   "utf8",
 );
 
