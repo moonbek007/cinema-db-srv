@@ -1,3 +1,5 @@
+import path from "path";
+import fs from "fs";
 import express, {
   type Express,
   type Request,
@@ -72,10 +74,20 @@ app.use(BaseEndpoints.COLLECTIONS, collectionsRouter);
 
 app.use(BaseEndpoints.GENRES, genresRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send(
-    `<div><h1 style="text-align:center"><a style="color:black" href="https://moonbek007-cinema-db.netlify.app/">Cinema DB </a>Server</h1></div>`,
-  );
+const swaggerYaml = fs.readFileSync(
+  path.join(process.cwd(), "swagger.yaml"),
+  "utf8",
+);
+const swaggerHtml = fs.readFileSync(
+  path.join(process.cwd(), "swagger.html"),
+  "utf8",
+);
+
+app.get("/swagger.yaml", (req, res) => {
+  res.status(200).type("text/yaml").send(swaggerYaml);
+});
+app.get("/", (req, res) => {
+  res.status(200).type("html").send(swaggerHtml);
 });
 
 app.use((req: Request, res: Response<{ message: string }>) => {
